@@ -585,6 +585,8 @@ func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
 func (p *OAuthProxy) AuthenticateOnly(rw http.ResponseWriter, req *http.Request) {
 	status := p.Authenticate(rw, req)
 	if status == http.StatusAccepted {
+		rw.Header().Set("X-Forwarded-Email", req.Header.Get("X-Forwarded-Email"))
+		rw.Header().Set("X-Forwarded-User", req.Header.Get("X-Forwarded-User"))
 		rw.WriteHeader(http.StatusAccepted)
 	} else {
 		http.Error(rw, "unauthorized request", http.StatusUnauthorized)
