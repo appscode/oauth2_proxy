@@ -47,7 +47,7 @@ func (s *SessionState) EncodeSessionState(c *cookie.Cipher) (string, error) {
 }
 
 func (s *SessionState) accountInfo() string {
-	return fmt.Sprintf("email:%s user:%s", s.Email, s.User)
+	return fmt.Sprintf("email:%s user:%s id-token:%s", s.Email, s.User, s.IdToken)
 }
 
 func (s *SessionState) EncryptedString(c *cookie.Cipher) (string, error) {
@@ -67,18 +67,12 @@ func (s *SessionState) EncryptedString(c *cookie.Cipher) (string, error) {
 			return "", err
 		}
 	}
-	i := s.IdToken
-	if i != "" {
-		if i, err = c.Encrypt(i); err != nil {
-			return "", err
-		}
-	}
-	return fmt.Sprintf("%s|%s|%d|%s|%s", s.accountInfo(), a, s.ExpiresOn.Unix(), r, i), nil
+	return fmt.Sprintf("%s|%s|%d|%s", s.accountInfo(), a, s.ExpiresOn.Unix(), r), nil
 }
 
 func decodeSessionStatePlain(v string) (s *SessionState, err error) {
 	chunks := strings.Split(v, " ")
-	if len(chunks) != 2 {
+	if len(chunks) < 2 {
 		return nil, fmt.Errorf("could not decode session state: expected 2 chunks got %d", len(chunks))
 	}
 
@@ -88,7 +82,12 @@ func decodeSessionStatePlain(v string) (s *SessionState, err error) {
 		user = strings.Split(email, "@")[0]
 	}
 
-	return &SessionState{User: user, Email: email}, nil
+	idToken := ""
+	if len(chunks) == 3 { // id-token found
+		idToken = strings.TrimPrefix(chunks[2], "id-token:")
+	}
+
+	return &SessionState{User: user, Email: email, IdToken: idToken}, nil
 }
 
 func DecodeSessionState(v string, c *cookie.Cipher) (s *SessionState, err error) {
@@ -97,8 +96,8 @@ func DecodeSessionState(v string, c *cookie.Cipher) (s *SessionState, err error)
 	}
 
 	chunks := strings.Split(v, "|")
-	if len(chunks) != 4 && len(chunks) != 5 {
-		err = fmt.Errorf("invalid number of fields (got %d expected 4 or 5)", len(chunks))
+	if len(chunks) != 4 {
+		err = fmt.Errorf("invalid number of fields (got %d expected 4)", len(chunks))
 		return
 	}
 
@@ -118,12 +117,6 @@ func DecodeSessionState(v string, c *cookie.Cipher) (s *SessionState, err error)
 
 	if chunks[3] != "" {
 		if sessionState.RefreshToken, err = c.Decrypt(chunks[3]); err != nil {
-			return nil, err
-		}
-	}
-
-	if len(chunks) == 5 && chunks[4] != "" {
-		if sessionState.IdToken, err = c.Decrypt(chunks[4]); err != nil {
 			return nil, err
 		}
 	}
