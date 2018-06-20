@@ -73,7 +73,7 @@ func (s *SessionState) EncryptedString(c *cookie.Cipher) (string, error) {
 func decodeSessionStatePlain(v string) (s *SessionState, err error) {
 	chunks := strings.Split(v, " ")
 	if len(chunks) < 2 {
-		return nil, fmt.Errorf("could not decode session state: expected 2 chunks got %d", len(chunks))
+		return nil, fmt.Errorf("could not decode session state: expected at least 2 chunks got %d", len(chunks))
 	}
 
 	email := strings.TrimPrefix(chunks[0], "email:")
