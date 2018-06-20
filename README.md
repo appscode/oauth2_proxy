@@ -201,6 +201,7 @@ Usage of oauth2_proxy:
   -https-address string: <addr>:<port> to listen on for HTTPS clients (default ":443")
   -login-url string: Authentication endpoint
   -pass-access-token: pass OAuth access_token to upstream via X-Forwarded-Access-Token header
+  -pass-id-token: pass OAuth id_token to upstream via X-Forwarded-Id-Token header
   -pass-basic-auth: pass HTTP Basic Auth, X-Forwarded-User and X-Forwarded-Email information to upstream (default true)
   -pass-host-header: pass the request Host Header to upstream (default true)
   -pass-user-headers: pass X-Forwarded-User and X-Forwarded-Email information to upstream (default true)
@@ -213,7 +214,7 @@ Usage of oauth2_proxy:
   -request-logging-format: Template for request log lines (see "Logging Format" paragraph below)
   -resource string: The resource that is protected (Azure AD only)
   -scope string: OAuth scope specification
-  -set-xauthrequest: set X-Auth-Request-User and X-Auth-Request-Email response headers (useful in Nginx auth_request mode)
+  -set-xauthrequest: set X-Auth-Request-User, X-Auth-Request-Email and X-Auth-Id-Token (if pass-id-token=true) response headers (useful in Nginx auth_request mode)
   -signature-key string: GAP-Signature request signature key (algorithm:secretkey)
   -skip-auth-preflight: will skip authentication for OPTIONS requests
   -skip-auth-regex value: bypass authentication for requests path's that match (may be given multiple times)
