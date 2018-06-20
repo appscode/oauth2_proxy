@@ -1,11 +1,12 @@
 # build stage
-FROM golang:alpine AS build-env
+FROM golang:1.9-stretch AS build-env
+RUN curl -fsSL -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 && chmod +x /usr/local/bin/dep
 ADD . /go/src/github.com/bitly/oauth2_proxy
-RUN cd /go/src/github.com/bitly/oauth2_proxy && go build -o goapp
+WORKDIR /go/src/github.com/bitly/oauth2_proxy
+RUN dep ensure -vendor-only
+RUN cd /go/src/github.com/bitly/oauth2_proxy && go build -o goapp && chmod +x goapp
 
 # final stage
-FROM alpine
-RUN apk add --update --no-cache ca-certificates
-COPY --from=build-env  /go/src/github.com/bitly/oauth2_proxy/goapp /bin/oauth2_proxy
-RUN chmod +x /bin/oauth2_proxy
+FROM busybox
+COPY --from=build-env /go/src/github.com/bitly/oauth2_proxy/goapp /bin/oauth2_proxy
 ENTRYPOINT ["oauth2_proxy"]
