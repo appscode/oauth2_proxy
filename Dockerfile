@@ -4,7 +4,7 @@ RUN curl -fsSL -o /usr/local/bin/dep https://github.com/golang/dep/releases/down
 ADD . /go/src/github.com/bitly/oauth2_proxy
 WORKDIR /go/src/github.com/bitly/oauth2_proxy
 RUN dep ensure -vendor-only
-RUN cd /go/src/github.com/bitly/oauth2_proxy && go build -o goapp && chmod +x goapp
+RUN cd /go/src/github.com/bitly/oauth2_proxy && CGO_ENABLED=0 go build -o goapp && chmod +x goapp
 
 # final stage
 FROM busybox
