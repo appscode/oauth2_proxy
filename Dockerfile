@@ -3,8 +3,7 @@ FROM golang:1.9-stretch AS build-env
 RUN curl -fsSL -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 && chmod +x /usr/local/bin/dep
 ADD . /go/src/github.com/bitly/oauth2_proxy
 WORKDIR /go/src/github.com/bitly/oauth2_proxy
-RUN dep ensure -vendor-only
-RUN cd /go/src/github.com/bitly/oauth2_proxy && go build -o goapp && chmod +x goapp
+RUN dep ensure -vendor-only && CGO_ENABLED=0 go build -o goapp && chmod +x goapp
 
 # final stage
 FROM busybox
